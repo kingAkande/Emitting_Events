@@ -1,34 +1,70 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.24;
+//SPDX-License-Identifier: MIT
 
-// Uncomment this line to use console.log
-// import "hardhat/console.sol";
+pragma solidity ^0.8.9;
+contract EmittingEvents{
 
-contract Lock {
-    uint public unlockTime;
-    address payable public owner;
+   mapping (address => uint) public balances;
+   
 
-    event Withdrawal(uint amount, uint when);
+  event deposit( address indexed reciever, uint ammount);
 
-    constructor(uint _unlockTime) payable {
-        require(
-            block.timestamp < _unlockTime,
-            "Unlock time should be in the future"
-        );
+  event withdraw(address indexed owner, uint ammount);
 
-        unlockTime = _unlockTime;
-        owner = payable(msg.sender);
-    }
+   event transfer(address indexed owner, address indexed reciever, uint ammount );
 
-    function withdraw() public {
-        // Uncomment this line, and the import of "hardhat/console.sol", to print a log in your terminal
-        // console.log("Unlock time is %o and block timestamp is %o", unlockTime, block.timestamp);
 
-        require(block.timestamp >= unlockTime, "You can't withdraw yet");
-        require(msg.sender == owner, "You aren't the owner");
 
-        emit Withdrawal(address(this).balance, block.timestamp);
 
-        owner.transfer(address(this).balance);
-    }
+   function Depositing( address _reciever, uint _amount) external payable {
+
+               require( _reciever != address(0) , "can't transfer to a zero account");
+
+               balances[_reciever] += _amount;
+               
+               emit deposit( _reciever, _amount);
+   }
+
+
+
+
+
+   function Withdrawing( address _owner, uint _ammount)external payable {
+                  
+               if( (balances[_owner]<0) && (balances[_owner]<= _ammount ) ){
+
+                        revert("insufficient balance");
+                }
+
+               balances[_owner] -= _ammount;
+
+               emit withdraw( _owner,  _ammount);
+   }
+
+
+
+
+
+   function tranferring(address _owner, address _reciever , uint _ammount)external payable {
+
+               require( _reciever != address(0), "can't transfer to a zero account");
+
+               require(balances[_owner] > _ammount, "insufficient balance");
+               
+               balances[_reciever] += _ammount;
+
+               balances[_owner] -=  _ammount;
+
+               emit transfer( _owner, _reciever, _ammount);
+   }
+
+
+
+function remainingBalance(address _owner)external view returns (uint){
+
+   return balances[_owner];
+}
+
+
+
+
 }
