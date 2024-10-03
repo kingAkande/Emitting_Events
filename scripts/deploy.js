@@ -12,9 +12,7 @@ async function main() {
 
   const lockedAmount = hre.ethers.parseEther("0.001");
 
-  const lock = await hre.ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  const lock = await hre.ethers.deployContract("EmittingEvents");
 
   await lock.waitForDeployment();
 
@@ -31,3 +29,8 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+
+/**
+ * 0x73696549aB058A04D90b229D2BfEf94eB5FA8D1B
+ */
